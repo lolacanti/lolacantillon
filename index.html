@@ -187,5 +187,31 @@ i’m happiest when i’m designing something, in any shape or form, especially 
 
 </div>
 
+
+  <!-- added: project-page routing. This keeps the original card markup intact and only assigns real pages after the page loads. -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const projectPages = {
+        "Pub at Rice website": "projects/pub-at-rice.html",
+        "Nomad travel app prototype": "projects/nomad.html",
+        "Beer Bike at Sid Richardson": "projects/beer-bike-26.html",
+        "@pubatrice Instagram": "projects/pubatrice.html",
+        "Rice Student Venture Fund site": "projects/rice-student-venture-fund.html",
+        "Rice Program Council site": "projects/rice-program-council.html"
+      };
+
+      Object.entries(projectPages).forEach(([altText, pageUrl]) => {
+        const image = document.querySelector(`#work img[alt="${altText}"]`);
+        const card = image && image.closest("a");
+
+        if (card) {
+          card.href = pageUrl;
+          card.removeAttribute("target"); // keeps project pages in the same browser tab
+          card.removeAttribute("rel");
+        }
+      });
+    });
+  </script>
+
 </body>
 </html>
