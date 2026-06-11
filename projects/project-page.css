@@ -5,6 +5,7 @@
   --grey:#7b766b;
   --hl:#ffe9a8;
   --hairline:#eae5da;
+  --blue:#0000FF;
 }
 html{scroll-behavior:smooth}
 body{
@@ -16,10 +17,10 @@ body{
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
 }
-::selection{background:var(--hl)}
+::selection{background:var(--blue);color:var(--bg)}
 a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
-a:hover{background:var(--hl);text-decoration:none}
-a:focus-visible{outline:2px solid var(--ink);outline-offset:3px;background:none}
+a:hover{background:var(--blue);color:var(--bg);text-decoration:none}
+a:focus-visible{outline:2px solid var(--blue);outline-offset:3px;background:none}
 img{display:block;width:100%}
 .page{max-width:1060px;margin:0 auto;padding:48px 24px 64px}
 .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:48px}
@@ -38,13 +39,14 @@ img{display:block;width:100%}
 }
 .hl{
   padding:0 6px;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 60' preserveAspectRatio='none'%3E%3Cpath d='M6,34 C30,18 80,14 150,16 C220,18 282,22 294,30 C298,40 270,50 150,50 C60,50 10,46 6,38 Z' fill='%23ffe9a8'/%3E%3C/svg%3E");
+  color:var(--bg);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 60' preserveAspectRatio='none'%3E%3Cpath d='M6,34 C30,18 80,14 150,16 C220,18 282,22 294,30 C298,40 270,50 150,50 C60,50 10,46 6,38 Z' fill='%230000FF'/%3E%3C/svg%3E");
   background-size:100% 100%;
   background-repeat:no-repeat;
   box-decoration-break:clone;-webkit-box-decoration-break:clone;
 }
-.note{font-family:'Mrs Saint Delafield',cursive;font-size:25px;color:#a39c8b;margin-left:8px;display:inline-block;transform:rotate(-4deg) translateY(2px);font-weight:400}
-.doodle{display:block;width:46px;height:58px;color:#b9b3a2;margin:20px 0 30px 6px;transform:rotate(8deg)}
+.note{font-family:'Mrs Saint Delafield',cursive;font-size:25px;color:var(--blue);margin-left:8px;display:inline-block;transform:rotate(-4deg) translateY(2px);font-weight:400}
+.doodle{display:block;width:46px;height:58px;color:var(--blue);opacity:.55;margin:20px 0 30px 6px;transform:rotate(8deg)}
 .project-hero{max-width:760px;margin-bottom:44px}
 .eyebrow{font-size:12px;color:var(--grey);margin-bottom:14px;text-transform:lowercase}
 h1{font-size:clamp(36px,7vw,76px);line-height:.92;letter-spacing:-.055em;font-weight:400;max-width:850px;margin-bottom:24px}
@@ -68,6 +70,7 @@ h1{font-size:clamp(36px,7vw,76px);line-height:.92;letter-spacing:-.055em;font-we
   padding:18px;
 }
 .ph.tall{min-height:420px;grid-row:span 2}
+.image-grid img{border:1px solid var(--hairline)}
 .outro{margin-top:64px}
 .sig{font-family:'Mrs Saint Delafield',cursive;font-size:54px;line-height:1;transform:rotate(-3deg);display:inline-block}
 .contact{margin-top:14px;font-size:13.5px;color:var(--grey)}
