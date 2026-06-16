@@ -236,43 +236,61 @@ i’m happiest when i’m designing something, in any shape or form, especially 
 (function(){
   var board = document.getElementById('board');
   var tiles = Array.prototype.slice.call(board.querySelectorAll('.tile'));
-  var z = 10, inited = false;
+  var z = 10, inited = false, lockedH = 0;
 
   function place(t,x,y,r){ t.style.left=x+'px'; t.style.top=y+'px'; t.style.transform='rotate('+r+'deg)'; }
   function smooth(t){ t.style.transition='left .35s ease,top .35s ease,transform .35s ease'; setTimeout(function(){ t.style.transition=''; },380); }
 
+  function tileW(t){ return Math.min(parseFloat(t.dataset.w), Math.max(120, board.offsetWidth - 12)); }
+
   function homePos(t){
-    var w = t.offsetWidth || parseFloat(t.dataset.w);
-    var fx = parseFloat(t.dataset.fx);
-    var fy = parseFloat(t.dataset.fy);
-    var x = Math.max(0, fx * Math.max(0, board.offsetWidth - w));
-    return {x:x, y:fy, r:parseFloat(t.dataset.r)};
+    var w = t.offsetWidth || tileW(t);
+    var x = Math.max(0, parseFloat(t.dataset.fx) * Math.max(0, board.offsetWidth - w));
+    return {x:x, y:parseFloat(t.dataset.fy), r:parseFloat(t.dataset.r)};
   }
 
-  function fitBoard(){
+  // height the scattered "home" layout needs
+  function homeHeight(){
     var max = 0;
     tiles.forEach(function(t){
-      var bottom = (parseFloat(t.style.top)||0) + t.offsetHeight;
-      if(bottom > max) max = bottom;
+      var b = parseFloat(t.dataset.fy) + t.offsetHeight;
+      if(b > max) max = b;
     });
-    board.style.height = (max + 24) + 'px';
+    return max + 24;
+  }
+  // height the tidy grid needs, simulated so the board fits that too
+  function gridHeight(){
+    var x=0, y=8, rowH=0, gap=16, max=0;
+    tiles.forEach(function(t){
+      var w=t.offsetWidth, h=t.offsetHeight;
+      if(x+w > board.offsetWidth){ x=0; y+=rowH+gap; rowH=0; }
+      if(y+h > max) max = y+h;
+      x+=w+gap; if(h>rowH) rowH=h;
+    });
+    return max + 8;
+  }
+  // lock the board to ONE fixed height so the page never reflows
+  function lockHeight(){
+    lockedH = Math.round(Math.max(homeHeight(), gridHeight()));
+    board.style.height = lockedH + 'px';
   }
 
   function goHome(animate){
     tiles.forEach(function(t){
-      t.style.width = Math.min(parseFloat(t.dataset.w), Math.max(120, board.offsetWidth - 12)) + 'px';
+      t.style.width = tileW(t) + 'px';
       var p = homePos(t);
       if(animate) smooth(t);
       place(t, p.x, p.y, p.r);
       t._moved = false;
     });
-    fitBoard();
   }
 
   function init(){
     if(inited) return;
     inited = true;
     goHome(false);
+    lockHeight();
+
     tiles.forEach(function(t){
       t.addEventListener('pointerdown', function(e){
         t.setPointerCapture(e.pointerId);
@@ -288,7 +306,6 @@ i’m happiest when i’m designing something, in any shape or form, especially 
         function up(){
           t.removeEventListener('pointermove', mv);
           t.removeEventListener('pointerup', up);
-          fitBoard();
         }
         t.addEventListener('pointermove', mv);
         t.addEventListener('pointerup', up);
@@ -308,14 +325,13 @@ i’m happiest when i’m designing something, in any shape or form, especially 
         x+=w+gap; if(h>rowH) rowH=h;
         t._moved = true;
       });
-      setTimeout(fitBoard, 390);
     });
 
     document.getElementById('mess').addEventListener('click', function(){
-      var bw = board.offsetWidth, bh = Math.max(board.offsetHeight, 480);
+      var bw = board.offsetWidth, bh = lockedH || board.offsetHeight;
       tiles.forEach(function(t){
         var maxX = Math.max(0, bw - t.offsetWidth);
-        var maxY = Math.max(0, bh - t.offsetHeight - 24);
+        var maxY = Math.max(0, bh - t.offsetHeight - 8);
         var x = Math.random()*maxX;
         var y = Math.random()*maxY;
         var r = (Math.random()*10 - 5).toFixed(1);
@@ -323,24 +339,20 @@ i’m happiest when i’m designing something, in any shape or form, especially 
         smooth(t); place(t, Math.round(x), Math.round(y), r);
         t._moved = true;
       });
-      setTimeout(fitBoard, 390);
     });
 
-    window.addEventListener('resize', function(){
-      var anyMoved = tiles.some(function(t){ return t._moved; });
-      if(!anyMoved) goHome(false); else fitBoard();
-    });
-
-    // re-fit whenever a photo finishes loading (lazy images settle late)
-    function settle(){
-      var anyMoved = tiles.some(function(t){ return t._moved; });
-      if(!anyMoved) goHome(false); else fitBoard();
+    // recompute the lock only when width changes or lazy images finish loading
+    function relock(){
+      var moved = tiles.some(function(t){ return t._moved; });
+      if(!moved) goHome(false);
+      lockHeight();
     }
+    window.addEventListener('resize', relock);
     tiles.forEach(function(t){
       var im = t.querySelector('img');
-      if(im && !im.complete) im.addEventListener('load', settle);
+      if(im && !im.complete) im.addEventListener('load', relock);
     });
-    window.addEventListener('load', settle);
+    window.addEventListener('load', relock);
   }
 
   init();
